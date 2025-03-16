@@ -6,6 +6,7 @@ import com.example.demo.entity.AircraftType;
 import com.example.demo.entity.MissionStatus;
 import com.example.demo.dto.MissionRequest;
 import com.example.demo.dto.MissionDTO;
+import com.example.demo.dto.AircraftStatsDTO;
 import com.example.demo.entity.Mission;
 import com.example.demo.service.UnifiedAircraftService;
 import com.example.demo.factory.MissionDTOFactory;
@@ -144,6 +145,16 @@ public class UnifiedAircraftController {
             return Result.success(status);
         } catch (Exception e) {
             return Result.error(500, "获取飞机状态失败：" + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/stats")
+    public Result<AircraftStatsDTO> getStats() {
+        try {
+            AircraftStatsDTO stats = aircraftService.getStats();
+            return Result.success(stats);
+        } catch (Exception e) {
+            return Result.error(500, "获取统计数据失败：" + e.getMessage());
         }
     }
     

@@ -5,6 +5,7 @@ import com.example.demo.entity.AircraftType;
 import com.example.demo.entity.MissionStatus;
 import com.example.demo.dto.MissionRequest;
 import com.example.demo.entity.Mission;
+import com.example.demo.dto.AircraftStatsDTO;
 
 import java.util.List;
 
@@ -27,4 +28,6 @@ public interface UnifiedAircraftService {
      * @return 当前正在执行的任务，如果没有则返回null
      */
     Mission getCurrentMission(Long id);
+
+    AircraftStatsDTO getStats();
 } 
