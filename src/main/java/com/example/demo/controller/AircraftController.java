@@ -12,6 +12,7 @@ import com.example.demo.dto.AircraftDTO;
 import com.example.demo.dto.MissionDTO;
 import com.example.demo.entity.Mission;
 import com.example.demo.service.AircraftService;
+import com.example.demo.factory.MissionDTOFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,9 @@ public class AircraftController {
     
     @Autowired
     private AircraftService aircraftService;
+    
+    @Autowired
+    private MissionDTOFactory missionDTOFactory;
     
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -98,7 +102,7 @@ public class AircraftController {
             
             List<Mission> missions = aircraftService.getAircraftMissions(id);
             List<MissionDTO> missionDTOs = missions.stream()
-                .map(MissionDTO::fromEntity)
+                .map(mission -> missionDTOFactory.createDTO(mission))
                 .collect(Collectors.toList());
             
             return Result.success(missionDTOs);
@@ -111,7 +115,7 @@ public class AircraftController {
     public Result<MissionDTO> assignMission(@RequestBody MissionRequest request) {
         try {
             Mission mission = aircraftService.assignMission(request);
-            return Result.success(MissionDTO.fromEntity(mission));
+            return Result.success(missionDTOFactory.createDTO(mission));
         } catch (RuntimeException e) {
             return Result.error(400, e.getMessage());
         }
@@ -121,7 +125,7 @@ public class AircraftController {
     public Result<MissionDTO> recallMission(@PathVariable Long id) {
         try {
             Mission mission = aircraftService.recallMission(id);
-            return Result.success(MissionDTO.fromEntity(mission));
+            return Result.success(missionDTOFactory.createDTO(mission));
         } catch (RuntimeException e) {
             return Result.error(400, e.getMessage());
         }

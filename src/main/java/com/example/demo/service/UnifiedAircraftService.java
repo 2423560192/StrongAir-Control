@@ -20,4 +20,11 @@ public interface UnifiedAircraftService {
     Mission assignMission(MissionRequest request);
     List<Mission> getAircraftMissions(Long aircraftId);
     Mission recallMission(Long missionId);
+    
+    /**
+     * 获取飞机的当前任务状态
+     * @param id 飞机ID
+     * @return 当前正在执行的任务，如果没有则返回null
+     */
+    Mission getCurrentMission(Long id);
 } 

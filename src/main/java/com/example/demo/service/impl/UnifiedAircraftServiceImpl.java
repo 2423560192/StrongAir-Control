@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional
 public class UnifiedAircraftServiceImpl implements UnifiedAircraftService {
     
     @Autowired
@@ -186,5 +187,15 @@ public class UnifiedAircraftServiceImpl implements UnifiedAircraftService {
         aircraftRepository.save(aircraft);
         
         return missionRepository.save(mission);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Mission getCurrentMission(Long id) {
+        List<Mission> missions = missionRepository.findByAircraftId(id);
+        return missions.stream()
+            .filter(m -> m.getStatus() == MissionStatus.IN_PROGRESS)
+            .findFirst()
+            .orElse(null);
     }
 } 

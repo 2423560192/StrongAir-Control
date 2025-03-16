@@ -8,6 +8,7 @@ import com.example.demo.dto.MissionRequest;
 import com.example.demo.dto.MissionDTO;
 import com.example.demo.entity.Mission;
 import com.example.demo.service.UnifiedAircraftService;
+import com.example.demo.factory.MissionDTOFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/unified-aircraft")
@@ -22,6 +24,9 @@ public class UnifiedAircraftController {
     
     @Autowired
     private UnifiedAircraftService aircraftService;
+    
+    @Autowired
+    private MissionDTOFactory missionDTOFactory;
     
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -90,7 +95,7 @@ public class UnifiedAircraftController {
             
             List<Mission> missions = aircraftService.getAircraftMissions(id);
             List<MissionDTO> missionDTOs = missions.stream()
-                .map(MissionDTO::fromEntity)
+                .map(mission -> missionDTOFactory.createDTO(mission))
                 .collect(Collectors.toList());
             
             return Result.success(missionDTOs);
@@ -103,7 +108,7 @@ public class UnifiedAircraftController {
     public Result<MissionDTO> assignMission(@RequestBody MissionRequest request) {
         try {
             Mission mission = aircraftService.assignMission(request);
-            return Result.success(MissionDTO.fromEntity(mission));
+            return Result.success(missionDTOFactory.createDTO(mission));
         } catch (RuntimeException e) {
             return Result.error(400, e.getMessage());
         }
@@ -113,9 +118,32 @@ public class UnifiedAircraftController {
     public Result<MissionDTO> recallMission(@PathVariable Long id) {
         try {
             Mission mission = aircraftService.recallMission(id);
-            return Result.success(MissionDTO.fromEntity(mission));
+            return Result.success(missionDTOFactory.createDTO(mission));
         } catch (RuntimeException e) {
             return Result.error(400, e.getMessage());
+        }
+    }
+    
+    @GetMapping("/{id}/status")
+    public Result<Map<String, Object>> getAircraftStatus(@PathVariable Long id) {
+        try {
+            UnifiedAircraft aircraft = aircraftService.findById(id);
+            if (aircraft == null) {
+                return Result.error(404, "未找到该飞机");
+            }
+            
+            Mission currentMission = aircraftService.getCurrentMission(id);
+            
+            Map<String, Object> status = new HashMap<>();
+            status.put("aircraftId", aircraft.getId());
+            status.put("name", aircraft.getName());
+            status.put("missionStatus", aircraft.getMissionStatus());
+            status.put("currentMission", currentMission != null ? 
+                missionDTOFactory.createDTO(currentMission) : null);
+            
+            return Result.success(status);
+        } catch (Exception e) {
+            return Result.error(500, "获取飞机状态失败：" + e.getMessage());
         }
     }
     
