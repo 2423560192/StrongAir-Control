@@ -1,14 +1,14 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.entity.Aircraft;
+import com.example.demo.entity.UnifiedAircraft;
 import com.example.demo.entity.AircraftType;
 import com.example.demo.entity.MissionStatus;
 import com.example.demo.entity.Mission;
 import com.example.demo.entity.MissionType;
 import com.example.demo.dto.MissionRequest;
-import com.example.demo.repository.AircraftRepository;
+import com.example.demo.repository.UnifiedAircraftRepository;
 import com.example.demo.repository.MissionRepository;
-import com.example.demo.service.AircraftService;
+import com.example.demo.service.UnifiedAircraftService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,36 +17,36 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class AircraftServiceImpl implements AircraftService {
+public class UnifiedAircraftServiceImpl implements UnifiedAircraftService {
     
     @Autowired
-    private AircraftRepository<Aircraft> aircraftRepository;
+    private UnifiedAircraftRepository aircraftRepository;
     
     @Autowired
     private MissionRepository missionRepository;
     
     @Override
-    public Aircraft save(Aircraft aircraft) {
+    public UnifiedAircraft save(UnifiedAircraft aircraft) {
         return aircraftRepository.save(aircraft);
     }
     
     @Override
-    public Aircraft findById(Long id) {
+    public UnifiedAircraft findById(Long id) {
         return aircraftRepository.findById(id).orElse(null);
     }
     
     @Override
-    public List<Aircraft> findAll() {
+    public List<UnifiedAircraft> findAll() {
         return aircraftRepository.findAll();
     }
     
     @Override
-    public List<Aircraft> findByType(AircraftType type) {
+    public List<UnifiedAircraft> findByType(AircraftType type) {
         return aircraftRepository.findByType(type);
     }
     
     @Override
-    public List<Aircraft> findByMissionStatus(MissionStatus status) {
+    public List<UnifiedAircraft> findByMissionStatus(MissionStatus status) {
         return aircraftRepository.findByMissionStatus(status);
     }
     
@@ -56,8 +56,8 @@ public class AircraftServiceImpl implements AircraftService {
     }
     
     @Override
-    public Aircraft updateMissionStatus(Long id, MissionStatus status) {
-        Aircraft aircraft = findById(id);
+    public UnifiedAircraft updateMissionStatus(Long id, MissionStatus status) {
+        UnifiedAircraft aircraft = findById(id);
         if (aircraft != null) {
             aircraft.setMissionStatus(status);
             return aircraftRepository.save(aircraft);
@@ -66,8 +66,8 @@ public class AircraftServiceImpl implements AircraftService {
     }
     
     @Override
-    public Aircraft update(Long id, Aircraft updatedAircraft) {
-        Aircraft aircraft = findById(id);
+    public UnifiedAircraft update(Long id, UnifiedAircraft updatedAircraft) {
+        UnifiedAircraft aircraft = findById(id);
         if (aircraft != null) {
             // 只更新非空字段
             if (updatedAircraft.getName() != null) {
@@ -91,6 +91,40 @@ public class AircraftServiceImpl implements AircraftService {
             if (updatedAircraft.getRadarModel() != null) {
                 aircraft.setRadarModel(updatedAircraft.getRadarModel());
             }
+            
+            // 更新战斗机特有属性
+            if (updatedAircraft.getWeaponCapacity() != null) {
+                aircraft.setWeaponCapacity(updatedAircraft.getWeaponCapacity());
+            }
+            if (updatedAircraft.getWeaponTypes() != null) {
+                aircraft.setWeaponTypes(updatedAircraft.getWeaponTypes());
+            }
+            if (updatedAircraft.getCombatRange() != null) {
+                aircraft.setCombatRange(updatedAircraft.getCombatRange());
+            }
+            
+            // 更新运输机特有属性
+            if (updatedAircraft.getCargoCapacity() != null) {
+                aircraft.setCargoCapacity(updatedAircraft.getCargoCapacity());
+            }
+            if (updatedAircraft.getCargoSpace() != null) {
+                aircraft.setCargoSpace(updatedAircraft.getCargoSpace());
+            }
+            if (updatedAircraft.getMaxRange() != null) {
+                aircraft.setMaxRange(updatedAircraft.getMaxRange());
+            }
+            
+            // 更新侦查机特有属性
+            if (updatedAircraft.getReconRange() != null) {
+                aircraft.setReconRange(updatedAircraft.getReconRange());
+            }
+            if (updatedAircraft.getSensorTypes() != null) {
+                aircraft.setSensorTypes(updatedAircraft.getSensorTypes());
+            }
+            if (updatedAircraft.getEndurance() != null) {
+                aircraft.setEndurance(updatedAircraft.getEndurance());
+            }
+            
             return aircraftRepository.save(aircraft);
         }
         return null;
@@ -99,12 +133,12 @@ public class AircraftServiceImpl implements AircraftService {
     @Override
     @Transactional
     public Mission assignMission(MissionRequest request) {
-        List<Aircraft> aircrafts = aircraftRepository.findByName(request.getName());
+        List<UnifiedAircraft> aircrafts = aircraftRepository.findByName(request.getName());
         if (aircrafts.isEmpty()) {
             throw new RuntimeException("未找到该飞机");
         }
         
-        Aircraft aircraft = aircrafts.get(0);
+        UnifiedAircraft aircraft = aircrafts.get(0);
         if (aircraft.getQuantity() < request.getQuantity()) {
             throw new RuntimeException("飞机数量不足");
         }
@@ -146,7 +180,7 @@ public class AircraftServiceImpl implements AircraftService {
         mission.setEndTime(LocalDateTime.now());
         
         // 更新飞机状态
-        Aircraft aircraft = aircraftRepository.findById(mission.getAircraftId())
+        UnifiedAircraft aircraft = aircraftRepository.findById(mission.getAircraftId())
             .orElseThrow(() -> new RuntimeException("未找到该飞机"));
         aircraft.setMissionStatus(MissionStatus.COMPLETED);
         aircraftRepository.save(aircraft);

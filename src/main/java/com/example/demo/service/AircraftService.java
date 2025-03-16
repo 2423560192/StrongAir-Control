@@ -4,6 +4,7 @@ import com.example.demo.entity.Aircraft;
 import com.example.demo.entity.AircraftType;
 import com.example.demo.entity.MissionStatus;
 import com.example.demo.dto.MissionRequest;
+import com.example.demo.entity.Mission;
 
 import java.util.List;
 
@@ -16,5 +17,7 @@ public interface AircraftService {
     void deleteById(Long id);
     Aircraft updateMissionStatus(Long id, MissionStatus status);
     Aircraft update(Long id, Aircraft aircraft);
-    String assignMission(MissionRequest request);
+    Mission assignMission(MissionRequest request);
+    List<Mission> getAircraftMissions(Long aircraftId);
+    Mission recallMission(Long missionId);
 } 

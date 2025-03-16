@@ -26,5 +26,5 @@ public abstract class Aircraft {
     
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private MissionStatus missionStatus = MissionStatus.STANDBY;
+    private MissionStatus missionStatus = MissionStatus.COMPLETED;
 } 
